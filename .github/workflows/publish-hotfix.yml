@@ -20,6 +20,7 @@ env:
 
 jobs:
   build:
+    if: github.run_number != 1
     name: CDP-build-hotfix-workflow
     runs-on: ubuntu-latest
     steps:

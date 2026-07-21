@@ -1,99 +1,84 @@
-# legacy-prns
+# Legacy PRNs
 
-Core delivery C# ASP.NET backend template.
+A skeleton ASP.NET API for the Legacy PRNs service.
 
-* [Install MongoDB](#install-mongodb)
-* [Inspect MongoDB](#inspect-mongodb)
-* [Testing](#testing)
-* [Running](#running)
-* [Dependabot](#dependabot)
+The service currently exposes health endpoints only. Serilog, CDP trace header propagation, proxy-capable HTTP client helpers, and the custom trust store hook are retained so future dependencies can be added consistently.
 
+## Prerequisites
 
-### Docker Compose
+- .NET 10
+- Docker
 
-A Docker Compose template is in [compose.yml](compose.yml).
-
-A local environment with:
-
-- Localstack for AWS services (S3, SQS)
-- Redis
-- MongoDB
-- This service.
-- A commented out frontend example.
+## Running locally via Docker
 
 ```bash
-docker compose up --build -d
+docker compose up --build --wait -d
 ```
 
-A more extensive setup is available in [github.com/DEFRA/cdp-local-environment](https://github.com/DEFRA/cdp-local-environment)
+The API is available on http://localhost:8085.
 
-### MongoDB
+## Running via .NET
 
-#### MongoDB via Docker
-
-See above.
-
-```
-docker compose up -d mongodb
-```
-
-#### MongoDB locally
-
-Alternatively install MongoDB locally:
-
-- Install [MongoDB](https://www.mongodb.com/docs/manual/tutorial/#installation) on your local machine
-- Start MongoDB:
 ```bash
-sudo mongod --dbpath ~/mongodb-cdp
+dotnet run --project ./src/Api --launch-profile Api
 ```
 
-#### MongoDB in CDP environments
+## Health endpoints
 
-In CDP environments a MongoDB instance is already set up
-and the credentials exposed as enviromment variables.
+- `GET /health` is the lightweight readiness endpoint
+- `GET /health/all` returns JSON for every registered health check
 
+There are no runtime dependency health checks registered in this skeleton. When a dependency is added, register its health check in `AddHealth`; `/health/all` will then include it automatically.
 
-### Inspect MongoDB
+## Tests
 
-To inspect the Database and Collections locally:
+Running tests without Docker dependencies:
+
 ```bash
-mongosh
+dotnet test --filter "Category!=IntegrationTests"
 ```
 
-You can use the CDP Terminal to access the environments' MongoDB.
+Running integration tests against the Docker Compose service:
 
-### Testing
+```bash
+docker compose up --build --wait -d
+dotnet test --filter "Category=IntegrationTests"
+```
 
-Run the tests with:
-
-Tests run by running a full `WebApplication` backed by [Ephemeral MongoDB](https://github.com/asimmon/ephemeral-mongo).
-Tests do not use mocking of any sort and read and write from the in-memory database.
+Running all tests after the compose service is up:
 
 ```bash
 dotnet test
-````
-
-### Running
-
-Run CDP-Deployments application:
-```bash
-dotnet run --project LegacyPrns --launch-profile Development
 ```
 
-### SonarCloud
+## Build pipeline
 
-Example SonarCloud configuration are available in the GitHub Action workflows.
+- [Pull requests](.github/workflows/check-pull-request.yml)
+  - Run unit tests
+  - Run integration tests against Docker Compose
+  - Build Docker image
+  - Check image with Trivy
+  - Run SonarCloud scan
+- [Publish](.github/workflows/publish.yml)
+  - Merge PR to main
+  - Run unit and integration tests
+  - Build Docker image and publish to CDP
+  - Run SonarCloud scan
 
-### Dependabot
+## Dependency management
 
-We have added an example dependabot configuration file to the repository. You can enable it by renaming
-the [.github/example.dependabot.yml](.github/example.dependabot.yml) to `.github/dependabot.yml`
+Dependabot is configured for NuGet and GitHub Actions updates.
 
+See [.github/dependabot.yml](.github/dependabot.yml).
+
+## Licence Information
+
+THIS INFORMATION IS LICENSED UNDER THE CONDITIONS OF THE OPEN GOVERNMENT LICENCE found at:
+
+http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3
 
 ### About the licence
 
-The Open Government Licence (OGL) was developed by the Controller of Her Majesty's Stationery Office (HMSO) to enable
-information providers in the public sector to license the use and re-use of their information under a common open
-licence.
+The Open Government Licence (OGL) was developed by the Controller of His Majesty's Stationery Office (HMSO) to enable information providers in the public sector to license the use and re-use of their information under a common open licence.
 
 It is designed to encourage use and re-use of information freely and flexibly, with only a few conditions.

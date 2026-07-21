@@ -1,0 +1,22 @@
+version: 2
+
+updates:
+  - package-ecosystem: nuget
+    directory: /
+    open-pull-requests-limit: 10
+    schedule:
+      interval: daily
+      time: '10:30'
+      timezone: 'Europe/London'
+    groups:
+      patch-updates:
+        applies-to: version-updates
+        update-types:
+          - 'patch'
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      time: '10:30'
+      timezone: 'Europe/London'

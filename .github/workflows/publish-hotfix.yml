@@ -9,9 +9,8 @@ concurrency:
   queue: max
 
 permissions:
-  id-token: write
-  contents: write
-  pull-requests: write
+  contents: read
+  packages: read
 
 env:
   AWS_REGION: eu-west-2
@@ -19,14 +18,47 @@ env:
 
 jobs:
   build:
+    if: github.run_number != 1
     name: CDP-build-hotfix-workflow
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+      packages: read
     steps:
       - name: Check out code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0 # Depth 0 required for branch-based versioning
+      - name: Test
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            10.0
+      - name: Run unit tests
+        run: |
+          dotnet test --filter "Category!=IntegrationTests"
+      - name: Run integration tests
+        run: |
+          docker compose up --build --wait -d
+          dotnet test --filter "Category=IntegrationTests"
+      - name: Docker compose logs
+        if: always()
+        run: |
+          docker compose logs
       - name: Publish Hot Fix
         uses: DEFRA/cdp-build-action/build-hotfix@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+  sonarcloud-scan:
+    name: CDP SonarCloud Scan
+    permissions:
+      id-token: write
+      pull-requests: write
+      contents: read
+      packages: read
+    uses: ./.github/workflows/sonarcloud.yml
+    needs: build
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

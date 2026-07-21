@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Defra.LegacyPrns.Api.Utils;
 using Defra.LegacyPrns.Api.Utils.Health;
 using Defra.LegacyPrns.Api.Utils.Logging;
@@ -38,10 +37,4 @@ catch (Exception ex)
 finally
 {
     await Log.CloseAndFlushAsync();
-}
-
-[ExcludeFromCodeCoverage]
-public partial class Program
-{
-    protected Program() { }
 }

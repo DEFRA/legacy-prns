@@ -9,9 +9,7 @@ concurrency:
   queue: max
 
 permissions:
-  id-token: write
-  contents: write
-  pull-requests: write
+  contents: read
   packages: read
 
 env:
@@ -23,6 +21,11 @@ jobs:
     if: github.run_number != 1
     name: CDP-build-hotfix-workflow
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+      packages: read
     steps:
       - name: Check out code
         uses: actions/checkout@v7

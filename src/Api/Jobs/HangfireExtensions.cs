@@ -62,8 +62,11 @@ public static class HangfireExtensions
         return services;
     }
 
-    public static WebApplication MapHangfireJobsDashboard(this WebApplication app)
+    public static WebApplication MapHangfireJobsDashboard(this WebApplication app, bool integrationTest)
     {
+        if (integrationTest)
+            return app;
+
         var dashboardOptions = app.Services.GetRequiredService<IOptions<HangfireOptions>>().Value.Dashboard;
 
         app.MapHangfireDashboard(
@@ -78,8 +81,11 @@ public static class HangfireExtensions
         return app;
     }
 
-    public static WebApplication RegisterRecurringJobs(this WebApplication app)
+    public static WebApplication RegisterRecurringJobs(this WebApplication app, bool integrationTest)
     {
+        if (integrationTest)
+            return app;
+
         // Hangfire requires a valid cron for dashboard-triggerable recurring jobs; 30 February never occurs.
         app.Services.GetRequiredService<IRecurringJobManager>()
             .AddOrUpdate<MigrateLegacyPrns>(

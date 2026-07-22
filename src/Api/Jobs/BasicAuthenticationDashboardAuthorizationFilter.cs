@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
@@ -6,6 +7,7 @@ using Microsoft.Net.Http.Headers;
 
 namespace Defra.LegacyPrns.Api.Jobs;
 
+[ExcludeFromCodeCoverage]
 public class BasicAuthenticationDashboardAuthorizationFilter(HangfireDashboardOptions options)
     : IDashboardAuthorizationFilter
 {

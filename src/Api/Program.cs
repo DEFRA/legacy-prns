@@ -27,17 +27,11 @@ try
 
     var app = builder.Build();
 
-    if (!integrationTest)
-        app.UseSerilogRequestLogging();
-
+    app.UseRequestLogging(integrationTest);
     app.UseHeaderPropagation();
     app.MapHealth();
-
-    if (!integrationTest)
-    {
-        app.MapHangfireJobsDashboard();
-        app.RegisterRecurringJobs();
-    }
+    app.MapHangfireJobsDashboard(integrationTest);
+    app.RegisterRecurringJobs(integrationTest);
 
     await app.RunAsync();
 }

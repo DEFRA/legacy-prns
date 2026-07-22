@@ -10,6 +10,7 @@
 - Specify variables as `const` in tests where possible
 - Use collection expressions where possible
 - Use object initializers where possible
+- Put each class or record in its own file
 - Do not use Arrange Act Assert comments in tests
 - Use `_camelCase` for private instance fields
 - Prefer AwesomeAssertions for assertions; where `Should().NotBeNull()` provides nullable flow information, do not add redundant null suppression operators or extra null guards
@@ -23,6 +24,16 @@
 - Check work has been successful by building the solution
 - Run `Api.Tests` after any change
 - Run `Api.IntegrationTests` after changes to startup, health, Docker, dependency wiring, or GitHub Actions
+
+## Service integration structure
+- Place downstream service integration code under `src/Api/Services/<ServiceName>/`
+- Keep each downstream integration self-contained in its service-specific folder, including wire DTOs, service options, HTTP clients, service interfaces, service registration extensions, and mappers
+- Name service folders after the downstream dependency or bounded integration, for example `PrnCommonBackend`
+- Use records for downstream DTOs and persistence-facing document records unless an external library requires otherwise
+- Place Mongo persistence-facing entity records under `src/Api/Data/Entities`
+- Keep pure mapping logic close to the downstream DTOs it maps from
+- Keep PRN Common Backend raw-data DTOs in `src/Api/Services/PrnCommonBackend` and legacy PRN Mongo entity records in `src/Api/Data/Entities`
+- Do not add runtime service registrations for DTOs, document records, or pure mappers
 
 ## Build guidance
 - In the sandbox environment, avoid plain `dotnet build` because it can hang or take significantly longer due to workload notification or build-server delays

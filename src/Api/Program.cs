@@ -1,3 +1,5 @@
+using Defra.LegacyPrns.Api.Data;
+using Defra.LegacyPrns.Api.Jobs;
 using Defra.LegacyPrns.Api.Utils;
 using Defra.LegacyPrns.Api.Utils.Health;
 using Defra.LegacyPrns.Api.Utils.Logging;
@@ -18,7 +20,10 @@ try
     builder.Services.AddCustomTrustStore();
     builder.ConfigureLoggingAndTracing(integrationTest);
     builder.Services.AddProblemDetails();
-    builder.Services.AddHealth();
+    builder.Services.AddMongo(builder.Configuration, integrationTest);
+    builder.Services.AddHealth(!integrationTest);
+    builder.Services.AddJobs();
+    builder.Services.AddHangfireJobs(builder.Configuration, integrationTest);
 
     var app = builder.Build();
 
@@ -27,6 +32,12 @@ try
 
     app.UseHeaderPropagation();
     app.MapHealth();
+
+    if (!integrationTest)
+    {
+        app.MapHangfireJobsDashboard();
+        app.RegisterRecurringJobs();
+    }
 
     await app.RunAsync();
 }

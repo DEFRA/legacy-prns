@@ -222,4 +222,83 @@ public class MappersTests
         document.Status.History.Should().ContainSingle();
         document.Status.History[0].CreatedByOrganisation.Should().BeNull();
     }
+
+    [Theory]
+    [InlineData(1, "accepted")]
+    [InlineData(2, "rejected")]
+    [InlineData(3, "cancelled")]
+    [InlineData(4, "awaiting-acceptance")]
+    [InlineData(999, null)]
+    public void ToLegacyPrn_ShouldMapStatusIdsToLegacyStatuses(int statusId, string? expectedStatus)
+    {
+        var dto = CreateRequiredPrnRawDataDto(statusId) with
+        {
+            PrnStatusHistories =
+            [
+                new PrnStatusHistoryRawDataDto { PrnStatusIdFk = statusId, CreatedByOrganisationId = Guid.NewGuid() },
+            ],
+        };
+
+        var document = dto.ToLegacyPrn();
+
+        document.Status.CurrentStatus.Should().Be(expectedStatus);
+        document.Status.History.Should().ContainSingle();
+        document.Status.History[0].PrnStatus.Should().Be(expectedStatus);
+    }
+
+    [Fact]
+    public void ToLegacyPrn_WhenYearsCannotBeParsed_ShouldLeaveYearsNull()
+    {
+        var dto = CreateRequiredPrnRawDataDto(1) with
+        {
+            AccreditationYear = "not-a-year",
+            ObligationYear = "2024.5",
+            PrnStatusHistories =
+            [
+                new PrnStatusHistoryRawDataDto { ObligationYear = "unknown", CreatedByOrganisationId = Guid.NewGuid() },
+            ],
+        };
+
+        var document = dto.ToLegacyPrn();
+
+        document.AccreditationYear.Should().BeNull();
+        document.ObligationYear.Should().BeNull();
+        document.Status.History.Should().ContainSingle();
+        document.Status.History[0].ObligationYear.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData(0, 10, 0)]
+    [InlineData(1, 10, 1)]
+    [InlineData(20, 10, 2)]
+    [InlineData(21, 10, 3)]
+    [InlineData(21, 0, 0)]
+    public void PageCount_ShouldCalculateFromTotalItemsAndPageSize(int totalItems, int pageSize, int expectedPageCount)
+    {
+        var response = new PaginatedResponse<PrnRawDataDto> { TotalItems = totalItems, PageSize = pageSize };
+
+        response.PageCount.Should().Be(expectedPageCount);
+    }
+
+    private static PrnRawDataDto CreateRequiredPrnRawDataDto(int statusId)
+    {
+        const string year = "2024";
+
+        return new PrnRawDataDto
+        {
+            PrnNumber = "EA240001234",
+            OrganisationName = "Compliance Scheme Alpha Ltd",
+            ProducerAgency = "Environment Agency",
+            ReprocessorExporterAgency = "Environment Agency",
+            PrnStatusId = statusId,
+            MaterialName = "Paper/Board",
+            IssuerReference = "TVR/2024/PPR/0042",
+            IssuedByOrg = "Thames Valley Reprocessing Ltd",
+            AccreditationNumber = "ER2024/10321",
+            AccreditationYear = year,
+            ObligationYear = year,
+            PackagingProducer = "Compliance Scheme Alpha Ltd",
+            LastUpdatedBy = Guid.NewGuid(),
+        };
+    }
 }

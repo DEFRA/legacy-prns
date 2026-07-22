@@ -41,6 +41,10 @@
 - Keep pure mapping logic close to the downstream DTOs it maps from
 - Keep PRN Common Backend raw-data DTOs in `src/Api/Services/PrnCommonBackend` and legacy PRN Mongo entity records in `src/Api/Data/Entities`
 - Do not add runtime service registrations for DTOs, document records, or pure mappers
+- Keep Mongo collection access behind `IDbContext` and focused persistence services/repositories; jobs should not request `IMongoDatabase` directly
+- The legacy PRN migration reads PRN Common Backend raw data using the literal query value `sourceSystemId=null` so only null-source legacy PRNs are migrated
+- The legacy PRN migration requests 50 PRNs per page, deletes all existing legacy PRNs before reading raw data, and inserts each migrated batch as fresh documents with Mongo `ObjectId` ids
+- PRN Common Backend integration tests should stub OAuth token requests and downstream responses through the compose WireMock service
 
 ## Build guidance
 - In the sandbox environment, avoid plain `dotnet build` because it can hang or take significantly longer due to workload notification or build-server delays

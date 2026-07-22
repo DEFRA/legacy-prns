@@ -8,6 +8,9 @@
 
   <ItemGroup>
     <PackageReference Include="AwesomeAssertions" Version="9.4.0" />
+    <!-- WireMock depends on Scriban.Signed transitively; keep this pinned only to avoid vulnerable transitive versions. -->
+    <PackageReference Include="Scriban.Signed" Version="7.2.5" />
+    <PackageReference Include="WireMock.Net.RestClient.AwesomeAssertions" Version="2.11.0" />
   </ItemGroup>
 
   <ItemGroup>

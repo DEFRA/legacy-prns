@@ -1,6 +1,8 @@
 using AwesomeAssertions;
 using Defra.LegacyPrns.Api.Data.Entities;
 using Defra.LegacyPrns.Api.Services.PrnCommonBackend;
+using Defra.LegacyPrns.Testing.Fixtures.PrnCommonBackend;
+using MongoDB.Bson;
 
 namespace Defra.LegacyPrns.Api.Tests.Services.PrnCommonBackend;
 
@@ -10,25 +12,11 @@ public class MappersTests
     public void ToLegacyPrn_ShouldMapRawDataToLegacyPrn()
     {
         const int prnId = 8231;
-        const string prnNumber = "EA240001234";
-        const string organisationName = "Compliance Scheme Alpha Ltd";
         const string agency = "Environment Agency";
         const string acceptedStatus = "accepted";
         const string awaitingAcceptanceStatus = "awaiting-acceptance";
-        const string materialName = "Paper/Board";
-        const string issuerNotes = "Q1 baled mixed paper, weighbridge tickets available on request.";
         const string issuerReference = "TVR/2024/PPR/0042";
-        const string prnSignatory = "Sarah Tester";
-        const string prnSignatoryPosition = "Compliance Manager";
-        const string issuedByOrg = "Thames Valley Reprocessing Ltd";
-        const string signature = "S. Tester";
-        const string processToBeUsed = "R3";
-        const string accreditationNumber = "ER2024/10321";
-        const string reprocessingSite = "Unit 7, Riverside Industrial Estate, Reading";
         const string issuedComment = "Issued for Q1 tonnage.";
-        const string accreditationYear = "2024";
-        const string obligationYear = "2024";
-        const string createdBy = "stester";
         const string sourceSystemId = "NPWD";
         const int parsedYear = 2024;
         const string schemaVersion = "v1.0";
@@ -45,34 +33,32 @@ public class MappersTests
         var issueDate = new DateTime(2024, 4, 2, 9, 15, 0, DateTimeKind.Utc);
         var statusUpdatedOn = new DateTime(2024, 4, 18, 14, 32, 7, DateTimeKind.Utc);
 
-        var dto = new PrnRawDataDto
+        var dto = PrnRawDataDtoFixture.Create(prnId) with
         {
-            Id = prnId,
             ExternalId = externalId,
-            PrnNumber = prnNumber,
+            PrnNumber = "EA240001234",
             OrganisationId = organisationId,
-            OrganisationName = organisationName,
+            OrganisationName = "Compliance Scheme Alpha Ltd",
             ProducerAgency = agency,
             ReprocessorExporterAgency = agency,
             PrnStatusId = acceptedStatusId,
             TonnageValue = tonnageValue,
-            MaterialName = materialName,
-            IssuerNotes = issuerNotes,
+            IssuerNotes = "Q1 baled mixed paper, weighbridge tickets available on request.",
             IssuerReference = issuerReference,
-            PrnSignatory = prnSignatory,
-            PrnSignatoryPosition = prnSignatoryPosition,
-            Signature = signature,
+            PrnSignatory = "Sarah Tester",
+            PrnSignatoryPosition = "Compliance Manager",
+            Signature = "S. Tester",
             IssueDate = issueDate,
-            ProcessToBeUsed = processToBeUsed,
+            ProcessToBeUsed = "R3",
             DecemberWaste = false,
             StatusUpdatedOn = statusUpdatedOn,
-            IssuedByOrg = issuedByOrg,
-            AccreditationNumber = accreditationNumber,
-            ReprocessingSite = reprocessingSite,
-            AccreditationYear = accreditationYear,
-            ObligationYear = obligationYear,
-            PackagingProducer = organisationName,
-            CreatedBy = createdBy,
+            IssuedByOrg = "Thames Valley Reprocessing Ltd",
+            AccreditationNumber = "ER2024/10321",
+            ReprocessingSite = "Unit 7, Riverside Industrial Estate, Reading",
+            AccreditationYear = "2024",
+            ObligationYear = "2024",
+            PackagingProducer = "Compliance Scheme Alpha Ltd",
+            CreatedBy = "stester",
             CreatedOn = createdOn,
             LastUpdatedBy = updatedBy,
             LastUpdatedDate = statusUpdatedOn,
@@ -89,7 +75,7 @@ public class MappersTests
                     PrnStatusIdFk = awaitingAcceptanceStatusId,
                     PrnIdFk = prnId,
                     Comment = issuedComment,
-                    ObligationYear = obligationYear,
+                    ObligationYear = "2024",
                 },
                 new PrnStatusHistoryRawDataDto
                 {
@@ -99,7 +85,7 @@ public class MappersTests
                     CreatedByOrganisationId = createdByOrganisationId,
                     PrnStatusIdFk = acceptedStatusId,
                     PrnIdFk = prnId,
-                    ObligationYear = obligationYear,
+                    ObligationYear = "2024",
                 },
             ],
         };
@@ -113,24 +99,24 @@ public class MappersTests
                 {
                     SchemaVersion = schemaVersion,
                     Version = 1,
-                    PrnNumber = prnNumber,
-                    Organisation = new Organisation { Id = organisationId, Name = organisationName },
+                    PrnNumber = dto.PrnNumber,
+                    Organisation = new Organisation { Id = organisationId, Name = dto.OrganisationName },
                     ProducerAgency = agency,
                     ReprocessorExporterAgency = agency,
                     TonnageValue = tonnageValue,
-                    MaterialName = materialName,
-                    Notes = issuerNotes,
-                    PrnSignatory = prnSignatory,
-                    PrnSignatoryPosition = prnSignatoryPosition,
-                    IssuedByOrg = issuedByOrg,
-                    Signature = signature,
+                    MaterialName = dto.MaterialName,
+                    Notes = dto.IssuerNotes,
+                    PrnSignatory = dto.PrnSignatory,
+                    PrnSignatoryPosition = dto.PrnSignatoryPosition,
+                    IssuedByOrg = dto.IssuedByOrg,
+                    Signature = dto.Signature,
                     IssueDate = issueDate,
                     IsDecemberWaste = false,
-                    AccreditationNumber = accreditationNumber,
-                    ReprocessingSite = reprocessingSite,
+                    AccreditationNumber = dto.AccreditationNumber,
+                    ReprocessingSite = dto.ReprocessingSite,
                     AccreditationYear = parsedYear,
                     ObligationYear = parsedYear,
-                    PackagingProducer = organisationName,
+                    PackagingProducer = dto.PackagingProducer,
                     IsExport = false,
                     Status = new Status
                     {
@@ -174,10 +160,10 @@ public class MappersTests
                         SourceSystemId = sourceSystemId,
                         PrnStatusId = acceptedStatusId,
                         IssuerReference = issuerReference,
-                        ProcessToBeUsed = processToBeUsed,
+                        ProcessToBeUsed = dto.ProcessToBeUsed,
                     },
                     CreatedAt = createdOn,
-                    CreatedBy = new User { Name = createdBy },
+                    CreatedBy = new User { Name = dto.CreatedBy },
                     UpdatedAt = statusUpdatedOn,
                     UpdatedBy = new User { Id = updatedBy },
                 },
@@ -188,36 +174,13 @@ public class MappersTests
     [Fact]
     public void ToLegacyPrn_WhenRawDataDoesNotContainSharedUserValues_ShouldLeaveUserFieldsNull()
     {
-        const string year = "2024";
-
-        var dto = new PrnRawDataDto
-        {
-            PrnNumber = "EA240001234",
-            OrganisationName = "Compliance Scheme Alpha Ltd",
-            ProducerAgency = "Environment Agency",
-            ReprocessorExporterAgency = "Environment Agency",
-            MaterialName = "Paper/Board",
-            IssuerReference = "TVR/2024/PPR/0042",
-            IssuedByOrg = "Thames Valley Reprocessing Ltd",
-            AccreditationNumber = "ER2024/10321",
-            AccreditationYear = year,
-            ObligationYear = year,
-            PackagingProducer = "Compliance Scheme Alpha Ltd",
-            LastUpdatedBy = Guid.NewGuid(),
-            PrnStatusHistories =
-            [
-                new PrnStatusHistoryRawDataDto
-                {
-                    CreatedByUser = Guid.NewGuid(),
-                    CreatedByOrganisationId = Guid.NewGuid(),
-                },
-            ],
-        };
+        var dto = PrnRawDataDtoFixture.Create(1) with { CreatedBy = null };
 
         var document = dto.ToLegacyPrn();
 
-        document.Id.Should().BeNull();
+        document.Id.Should().Be(ObjectId.Empty);
         document.CreatedBy.Id.Should().BeNull();
+        document.CreatedBy.Name.Should().BeNull();
         document.UpdatedBy.Name.Should().BeNull();
     }
 
@@ -229,11 +192,15 @@ public class MappersTests
     [InlineData(999, null)]
     public void ToLegacyPrn_ShouldMapStatusIdsToLegacyStatuses(int statusId, string? expectedStatus)
     {
-        var dto = CreateRequiredPrnRawDataDto(statusId) with
+        var dto = PrnRawDataDtoFixture.Create(1) with
         {
+            PrnStatusId = statusId,
             PrnStatusHistories =
             [
-                new PrnStatusHistoryRawDataDto { PrnStatusIdFk = statusId, CreatedByOrganisationId = Guid.NewGuid() },
+                PrnRawDataDtoFixture.Create(1).PrnStatusHistories[0] with
+                {
+                    PrnStatusIdFk = statusId,
+                },
             ],
         };
 
@@ -247,13 +214,16 @@ public class MappersTests
     [Fact]
     public void ToLegacyPrn_WhenYearsCannotBeParsed_ShouldLeaveYearsNull()
     {
-        var dto = CreateRequiredPrnRawDataDto(1) with
+        var dto = PrnRawDataDtoFixture.Create(1) with
         {
             AccreditationYear = "not-a-year",
             ObligationYear = "2024.5",
             PrnStatusHistories =
             [
-                new PrnStatusHistoryRawDataDto { ObligationYear = "unknown", CreatedByOrganisationId = Guid.NewGuid() },
+                PrnRawDataDtoFixture.Create(1).PrnStatusHistories[0] with
+                {
+                    ObligationYear = "unknown",
+                },
             ],
         };
 
@@ -273,30 +243,13 @@ public class MappersTests
     [InlineData(21, 0, 0)]
     public void PageCount_ShouldCalculateFromTotalItemsAndPageSize(int totalItems, int pageSize, int expectedPageCount)
     {
-        var response = new PaginatedResponse<PrnRawDataDto> { TotalItems = totalItems, PageSize = pageSize };
+        var response = PaginatedPrnRawDataResponseFixture.Create(
+            currentPage: 1,
+            pageSize,
+            Array.Empty<PrnRawDataDto>(),
+            totalItems
+        );
 
         response.PageCount.Should().Be(expectedPageCount);
-    }
-
-    private static PrnRawDataDto CreateRequiredPrnRawDataDto(int statusId)
-    {
-        const string year = "2024";
-
-        return new PrnRawDataDto
-        {
-            PrnNumber = "EA240001234",
-            OrganisationName = "Compliance Scheme Alpha Ltd",
-            ProducerAgency = "Environment Agency",
-            ReprocessorExporterAgency = "Environment Agency",
-            PrnStatusId = statusId,
-            MaterialName = "Paper/Board",
-            IssuerReference = "TVR/2024/PPR/0042",
-            IssuedByOrg = "Thames Valley Reprocessing Ltd",
-            AccreditationNumber = "ER2024/10321",
-            AccreditationYear = year,
-            ObligationYear = year,
-            PackagingProducer = "Compliance Scheme Alpha Ltd",
-            LastUpdatedBy = Guid.NewGuid(),
-        };
     }
 }

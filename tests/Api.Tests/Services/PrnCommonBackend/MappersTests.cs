@@ -186,7 +186,7 @@ public class MappersTests
     }
 
     [Fact]
-    public void ToLegacyPrn_WhenRawDataDoesNotContainLookupValues_ShouldLeaveDocumentFieldsNull()
+    public void ToLegacyPrn_WhenRawDataDoesNotContainSharedUserValues_ShouldLeaveUserFieldsNull()
     {
         const string year = "2024";
 
@@ -219,8 +219,6 @@ public class MappersTests
         document.Id.Should().BeNull();
         document.CreatedBy.Id.Should().BeNull();
         document.UpdatedBy.Name.Should().BeNull();
-        document.Status.History.Should().ContainSingle();
-        document.Status.History[0].CreatedByOrganisation.Should().BeNull();
     }
 
     [Theory]

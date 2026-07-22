@@ -8,8 +8,6 @@ public record StatusHistory
 
     public Guid CreatedByUser { get; init; }
 
-    public string? CreatedByOrganisation { get; init; }
-
     public string? PrnStatus { get; init; }
 
     public string? Comment { get; init; }

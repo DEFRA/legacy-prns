@@ -1,8 +1,10 @@
+using MongoDB.Bson;
+
 namespace Defra.LegacyPrns.Api.Data.Entities;
 
 public record LegacyPrn
 {
-    public string? Id { get; init; }
+    public ObjectId Id { get; init; }
 
     public string SchemaVersion { get; init; } = "v1.0";
 

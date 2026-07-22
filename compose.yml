@@ -21,12 +21,22 @@ services:
       start_period: 5s
     restart: unless-stopped
 
+  wiremock:
+    pull_policy: always
+    environment:
+      TZ: Europe/London
+    image: sheyenrath/wiremock.net:latest
+    ports:
+      - "9090:80"
+
   legacy-prns:
     build:
       dockerfile: Dockerfile
     depends_on:
       mongodb:
         condition: service_healthy
+      wiremock:
+        condition: service_started
     ports:
       - '8085:8085'
     environment:
@@ -36,6 +46,11 @@ services:
       Hangfire__Dashboard__Password: password
       Hangfire__Dashboard__StatsPollingIntervalMilliseconds: 60000
       Mongo__DatabaseUri: mongodb://mongodb:27017/?replicaSet=rs0&directConnection=true&readPreference=secondaryPreferred
+      PrnCommonBackend__TokenEndpoint: http://wiremock/oauth2/v2.0/token
+      PrnCommonBackend__BaseAddress: http://wiremock/
+      PrnCommonBackend__ClientId: prn-common-backend
+      PrnCommonBackend__ClientSecret: client_secret
+      PrnCommonBackend__Scope: scope
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:8085/health']
       interval: 10s

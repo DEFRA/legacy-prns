@@ -20,6 +20,6 @@ internal sealed class TestLogger<T> : ILogger<T>
     )
     {
         var logState = state as IReadOnlyList<KeyValuePair<string, object?>> ?? [];
-        Entries.Add(new LogEntry(logLevel, formatter(state, exception), logState));
+        Entries.Add(new LogEntry(logLevel, formatter(state, exception), logState, exception));
     }
 }

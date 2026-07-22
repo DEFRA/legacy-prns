@@ -1,5 +1,6 @@
 using Defra.LegacyPrns.Api.Data;
 using Defra.LegacyPrns.Api.Jobs;
+using Defra.LegacyPrns.Api.Services.PrnCommonBackend;
 using Defra.LegacyPrns.Api.Utils;
 using Defra.LegacyPrns.Api.Utils.Health;
 using Defra.LegacyPrns.Api.Utils.Logging;
@@ -22,6 +23,7 @@ try
     builder.Services.AddProblemDetails();
     builder.Services.AddMongo(builder.Configuration, integrationTest);
     builder.Services.AddHealth(!integrationTest);
+    builder.Services.AddPrnCommonBackendService();
     builder.Services.AddJobs();
     builder.Services.AddHangfireJobs(builder.Configuration, integrationTest);
 

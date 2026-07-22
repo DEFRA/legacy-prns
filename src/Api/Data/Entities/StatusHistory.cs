@@ -1,3 +1,6 @@
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace Defra.LegacyPrns.Api.Data.Entities;
 
 public record StatusHistory
@@ -6,6 +9,7 @@ public record StatusHistory
 
     public DateTime CreatedOn { get; init; }
 
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid CreatedByUser { get; init; }
 
     public string? PrnStatus { get; init; }

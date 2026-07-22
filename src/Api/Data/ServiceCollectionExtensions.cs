@@ -30,6 +30,8 @@ public static class ServiceCollectionExtensions
 
         BootstrapMongo();
 
+        services.AddScoped<IDbContext, MongoDbContext>();
+        services.AddTransient<ILegacyPrnRepository, LegacyPrnRepository>();
         services.AddSingleton<IMongoClient>(sp =>
         {
             var options = sp.GetRequiredService<IOptions<MongoDbOptions>>().Value;

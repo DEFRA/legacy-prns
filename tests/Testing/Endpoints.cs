@@ -14,4 +14,11 @@ public static class Endpoints
 
         public static string All() => $"{Ready}/all";
     }
+
+    public static class Hangfire
+    {
+        public const string Dashboard = "hangfire";
+
+        public static string RecurringJobs() => $"{Dashboard}/recurring";
+    }
 }

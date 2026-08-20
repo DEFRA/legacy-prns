@@ -1,14 +1,47 @@
 services:
+  mongodb:
+    image: mongo:7.0.24
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb-data:/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--quiet",
+          "--eval",
+          "try { rs.status().ok } catch (e) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongodb:27017'}]}).ok }",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+
   legacy-prns:
     build:
       dockerfile: Dockerfile
+    depends_on:
+      mongodb:
+        condition: service_healthy
     ports:
       - '8085:8085'
     environment:
+      ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8085
+      Hangfire__Dashboard__Username: developer
+      Hangfire__Dashboard__Password: password
+      Hangfire__Dashboard__StatsPollingIntervalMilliseconds: 60000
+      Mongo__DatabaseUri: mongodb://mongodb:27017/?replicaSet=rs0&directConnection=true&readPreference=secondaryPreferred
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:8085/health']
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
+
+volumes:
+  mongodb-data:

@@ -2,7 +2,7 @@
 
 A skeleton ASP.NET API for the Legacy PRNs service.
 
-The service currently exposes health endpoints only. Serilog, CDP trace header propagation, proxy-capable HTTP client helpers, and the custom trust store hook are retained so future dependencies can be added consistently.
+The service exposes health endpoints and Hangfire background job support backed by MongoDB. Serilog, CDP trace header propagation, proxy-capable HTTP client helpers, and the custom trust store hook are retained so future dependencies can be added consistently.
 
 ## Prerequisites
 
@@ -16,6 +16,8 @@ docker compose up --build --wait -d
 ```
 
 The API is available on http://localhost:8085.
+The Hangfire dashboard is available on http://localhost:8085/hangfire.
+Local Docker and `Development` runs use `developer` / `password` for the dashboard.
 
 ## Running via .NET
 
@@ -28,7 +30,7 @@ dotnet run --project ./src/Api --launch-profile Api
 - `GET /health` is the lightweight readiness endpoint
 - `GET /health/all` returns JSON for every registered health check
 
-There are no runtime dependency health checks registered in this skeleton. When a dependency is added, register its health check in `AddHealth`; `/health/all` will then include it automatically.
+The extended health endpoint includes the MongoDB dependency used by Hangfire.
 
 ## Tests
 
